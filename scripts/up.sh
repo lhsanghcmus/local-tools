@@ -9,6 +9,7 @@ mkdir -p "$SCRIPT_DIR/../data/kafka2"
 mkdir -p "$SCRIPT_DIR/../data/mongodb_primary"
 mkdir -p "$SCRIPT_DIR/../data/redis"
 mkdir -p "$SCRIPT_DIR/../data/postgres"
+mkdir -p "$SCRIPT_DIR/../data/elasticsearch"
 
 # Run Docker Compose from the project root
-docker compose -f "$SCRIPT_DIR/../docker-compose.yml" up -d
+docker compose -f "$SCRIPT_DIR/../docker-compose.yml"  up -d

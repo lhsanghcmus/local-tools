@@ -201,6 +201,59 @@ services:
     ports:
       - 8090:8080
 
+  elasticsearch:
+    image: elasticsearch:9.0.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - ELASTIC_PASSWORD=${ES_PASSWORD}
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elastic
+
+  kibana-user-creator:
+    image: curlimages/curl:8.4.0
+    entrypoint: ["/scripts/create-kibana-user.sh"]
+    networks:
+      - elastic
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./scripts/create-kibana-user.sh:/scripts/create-kibana-user.sh:ro
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ES_PASSWORD}
+      - ES_HOST=http://elasticsearch:9200
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+
+  kibana:
+    image: kibana:9.0.1
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - KIBANA_USER=${KIBANA_USER}
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+    ports:
+      - "5601:5601"
+    networks:
+      - elastic
+    depends_on:
+      - elasticsearch
+      - kibana-user-creator
+    volumes:
+      - ./config/kibana.yaml:/usr/share/kibana/config/kibana.yml:ro
+
 volumes:
   mongodb_master_data:
     driver: local
@@ -238,6 +291,12 @@ volumes:
       type: none
       device: ./data/postgres
       o: bind
+  esdata:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/elasticsearch
+      o: bind
 
 networks:
   mongo-cluster:
@@ -245,4 +304,6 @@ networks:
   kafka-cluster:
     driver: bridge
   postgres:
+    driver: bridge
+  elastic:
     driver: bridge

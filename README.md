@@ -15,6 +15,10 @@ This project sets up a comprehensive local development stack with the following 
 - **Apache Kafka Cluster**: A 3-broker Kafka cluster using KRaft mode (without Zookeeper)
 - **Kafka UI**: Web-based interface for managing and monitoring Kafka topics, consumers, and producers
 
+### 🔍 Search & Analytics Services
+- **Elasticsearch**: Distributed search and analytics engine with security enabled
+- **Kibana**: Web-based interface for Elasticsearch data visualization and analysis
+
 ### 🔄 Workflow Services
 - **Temporal Server**: Distributed workflow orchestration platform for reliable microservices
 - **Temporal UI**: Web-based interface for monitoring and managing Temporal workflows
@@ -34,6 +38,8 @@ This project sets up a comprehensive local development stack with the following 
 | Kafka Broker 1 | 9993 | Second Kafka broker |
 | Kafka Broker 2 | 9994 | Third Kafka broker |
 | Kafka UI | 8080 | Web interface for Kafka management |
+| Elasticsearch | 9200 | Elasticsearch REST API |
+| Kibana | 5601 | Web interface for Elasticsearch visualization |
 
 ## Quick Start
 
@@ -47,6 +53,7 @@ After cloning the repository, make sure the script files have execute permission
 chmod +x scripts/up.sh
 chmod +x scripts/down.sh
 chmod +x scripts/init-temporal.sh
+chmod +x scripts/create-kibana.user.sh
 ```
 
 ### Setup Environment Variables
@@ -63,6 +70,11 @@ REDIS_PASSWORD=your_redis_password
 POSTGRES_USER=your_postgres_username
 POSTGRES_PASSWORD=your_postgres_password
 TEMPORAL_PASSWORD=your_temporal_password
+
+# Elasticsearch Configuration
+ES_PASSWORD=your_elasticsearch_password
+KIBANA_USER=kibana_system
+KIBANA_PASSWORD=your_kibana_password
 ```
 
 ### Usage
@@ -85,6 +97,7 @@ All data is persisted in the `./data/` directory:
 - `./data/redis/` - Redis data
 - `./data/kafka0/`, `./data/kafka1/`, `./data/kafka2/` - Kafka data
 - `./data/postgresql/` - PostgreSQL data
+- `./data/elasticsearch/` - Elasticsearch data
 
 ## Service Details
 
@@ -125,6 +138,19 @@ All data is persisted in the `./data/` directory:
 - **UI**: Provectus Kafka UI v0.7.2 for management
 - **Security**: No authentication required for client connections
 
+### Elasticsearch
+- **Version**: Elasticsearch 9.0.1
+- **Mode**: Single-node cluster for development
+- **Security**: X-Pack security enabled with password authentication
+- **Features**: Full-text search, analytics, and aggregations
+- **Memory**: Configured with 1GB heap size (ES_JAVA_OPTS)
+
+### Kibana
+- **Version**: Kibana 9.0.1
+- **Authentication**: Uses dedicated `kibana_system` user
+- **Features**: Data visualization, dashboard creation, and Elasticsearch management
+- **Configuration**: Custom configuration via `kibana.yaml`
+
 ## Features
 
 - **Production-like Setup**: MongoDB replica set and Kafka cluster mimic production environments
@@ -144,6 +170,8 @@ Perfect for:
 - Integration testing with multiple data stores
 - Time-series data applications
 - Temporal workflow development
+- Search and analytics with Elasticsearch and Kibana
+- Log aggregation and visualization
 
 ## Connection Examples
 
@@ -182,4 +210,18 @@ temporal --address localhost:7233 workflow list
 kafka-topics --bootstrap-server localhost:9992 --list
 
 # Or use the web UI at http://localhost:8080 (no login required)
+```
+
+### Elasticsearch
+```bash
+# Check cluster health with authentication
+curl -u elastic:your_elasticsearch_password http://localhost:9200/_cluster/health
+
+# Create an index
+curl -u elastic:your_elasticsearch_password -X PUT http://localhost:9200/my-index
+
+# Search documents
+curl -u elastic:your_elasticsearch_password http://localhost:9200/my-index/_search
+
+# Or use Kibana web UI at http://localhost:5601 (login with kibana_system user)
 ```
