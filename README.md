@@ -13,7 +13,7 @@ This project sets up a comprehensive local development stack with the following 
 
 ### 📨 Messaging Services
 - **Apache Kafka Cluster**: A 3-broker Kafka cluster using KRaft mode (without Zookeeper)
-- **Kafka UI**: Web-based interface for managing and monitoring Kafka topics, consumers, and producers
+- **Kafka UI**: Web-based interface for managing and monitoring Kafka topics, consumers, and producers (no password required)
 
 ### 🔍 Search & Analytics Services
 - **Elasticsearch**: Distributed search and analytics engine with security enabled
@@ -33,11 +33,11 @@ This project sets up a comprehensive local development stack with the following 
 | Redis | 6379 | Redis server |
 | PostgreSQL | 5432 | PostgreSQL database server |
 | Temporal Server | 7233 | Temporal gRPC endpoint |
-| Temporal UI | 8090 | Web interface for Temporal workflows |
+| Temporal UI | 8090 | Web interface for Temporal workflows (no login required) |
 | Kafka Broker 0 | 9992 | First Kafka broker |
 | Kafka Broker 1 | 9993 | Second Kafka broker |
 | Kafka Broker 2 | 9994 | Third Kafka broker |
-| Kafka UI | 8080 | Web interface for Kafka management |
+| Kafka UI | 8080 | Web interface for Kafka management (no login required) |
 | Elasticsearch | 9200 | Elasticsearch REST API |
 | Kibana | 5601 | Web interface for Elasticsearch visualization |
 
@@ -136,7 +136,7 @@ All data is persisted in the `./data/` directory:
 - **Mode**: KRaft (no Zookeeper dependency)
 - **Brokers**: 3-node cluster for high availability
 - **UI**: Provectus Kafka UI v0.7.2 for management
-- **Security**: No authentication required for client connections
+- **Security**: No authentication required for client connections or web UI access
 
 ### Elasticsearch
 - **Version**: Elasticsearch 9.0.1
@@ -168,7 +168,6 @@ Perfect for:
 - Learning about replica sets and Kafka clusters
 - Prototyping event-driven architectures
 - Integration testing with multiple data stores
-- Time-series data applications
 - Temporal workflow development
 - Search and analytics with Elasticsearch and Kibana
 - Log aggregation and visualization
