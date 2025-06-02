@@ -1,0 +1,188 @@
+services:
+  mongodb-primary:
+    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - GLIBC_TUNABLES=glibc.pthread.rseq=0
+    volumes:
+      - 'mongodb_master_data:/data/db'
+      - './scripts/mongosetup/mongo-keyfile:/etc/mongo-keyfile:ro'
+    ports:
+        - "30000:30000"
+    networks:
+      - mongo-cluster
+    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile", "--port", "30000"]
+
+  mongodb-secondary:
+    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    depends_on:
+      - mongodb-primary
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=0
+    ports:
+      - "30001:30001"
+    volumes:
+      - './scripts/mongosetup/mongo-keyfile:/etc/mongo-keyfile:ro'
+    networks:
+      - mongo-cluster
+    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile", "--port", "30001"]
+
+  mongodb-arbiter:
+    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    depends_on:
+      - mongodb-primary
+      - mongodb-secondary
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=0
+    networks:
+      - mongo-cluster
+    volumes:
+      - './scripts/mongosetup/mongo-keyfile:/etc/mongo-keyfile:ro'
+    command: [ "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile", "--port", "30002"]
+
+  mongodb-setup:
+    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    depends_on:
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
+    volumes:
+      - ./scripts/mongosetup:/scripts/
+    restart: "no"
+    entrypoint: [ "bash", "/scripts/mongo_setup.sh" ]
+    networks:
+      - mongo-cluster
+
+  redis:
+    image: redis:8.0.1-alpine3.21
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  kafka-0:
+    image: confluentinc/cp-kafka:7.9.1
+    ports:
+      - "9992:9092"
+    environment:
+      KAFKA_NODE_ID: 0
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_LISTENERS: 'INTERNAL://kafka-0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://kafka-0:29093'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka-0:29092,EXTERNAL://localhost:9992'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '0@kafka-0:29093,1@kafka-1:29093,2@kafka-2:29093'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: 'MyClusterIdABCD1234'
+    networks:
+      - kafka-cluster
+
+  kafka-1:
+    image: confluentinc/cp-kafka:7.9.1
+    ports:
+      - "9993:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_LISTENERS: 'INTERNAL://kafka-1:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://kafka-1:29093'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka-1:29092,EXTERNAL://localhost:9993'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '0@kafka-0:29093,1@kafka-1:29093,2@kafka-2:29093'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: 'MyClusterIdABCD1234'
+    networks:
+      - kafka-cluster
+
+  kafka-2:
+    image: confluentinc/cp-kafka:7.9.1
+    ports:
+      - "9994:9092"
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_LISTENERS: 'INTERNAL://kafka-2:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://kafka-2:29093'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka-2:29092,EXTERNAL://localhost:9994'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '0@kafka-0:29093,1@kafka-1:29093,2@kafka-2:29093'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: 'MyClusterIdABCD1234'
+    networks:
+      - kafka-cluster
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=kraft-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka-0:29092,kafka-1:29092,kafka-2:29092
+    depends_on:
+      - kafka-0
+      - kafka-1
+      - kafka-2
+    networks:
+      - kafka-cluster
+
+volumes:
+  mongodb_master_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/mongodb_primary
+      o: bind
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/redis
+      o: bind
+  kafka_0_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/kafka0
+      o: bind
+  kafka_1_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/kafka1
+      o: bind
+  kafka_2_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/kafka2
+      o: bind
+
+networks:
+  mongo-cluster:
+    driver: bridge
+  kafka-cluster:
+    driver: bridge
