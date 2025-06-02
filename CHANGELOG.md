@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added missing `chmod 400 scripts/mongosetup/mongo-keyfile` command for MongoDB keyfile permissions
   - Ensures proper file permissions for MongoDB authentication setup
 
-## [1.0.0] - 2024-12-19
+## [1.0.0] - 2025-06-02
 
 ### Added
 - **Elasticsearch & Kibana Services**: Added Elasticsearch 9.0.1 and Kibana 9.0.1 for search and analytics capabilities
