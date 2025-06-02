@@ -2,6 +2,10 @@
 
 A Docker Compose-based local development environment that provides essential data storage and messaging services for development and testing purposes.
 
+## 📋 Release Notes & Changelog
+
+For detailed information about changes, new features, and version history, see [CHANGELOG.md](CHANGELOG.md).
+
 ## Description
 
 This project sets up a comprehensive local development stack with the following services:
