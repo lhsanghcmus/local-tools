@@ -9,7 +9,7 @@ This project sets up a comprehensive local development stack with the following 
 ### 📊 Database Services
 - **MongoDB Replica Set**: A 3-node MongoDB cluster (Primary, Secondary, Arbiter) with authentication and keyfile security
 - **Redis**: In-memory data structure store with persistence and password protection
-- **TimescaleDB**: PostgreSQL-based time-series database with Temporal workflow database setup
+- **PostgreSQL**: PostgreSQL database with Temporal workflow database setup
 
 ### 📨 Messaging Services
 - **Apache Kafka Cluster**: A 3-broker Kafka cluster using KRaft mode (without Zookeeper)
@@ -27,7 +27,7 @@ This project sets up a comprehensive local development stack with the following 
 | MongoDB Secondary | 30001 | Secondary MongoDB replica |
 | MongoDB Arbiter | 30002 | MongoDB arbiter node |
 | Redis | 6379 | Redis server |
-| TimescaleDB | 5432 | PostgreSQL with TimescaleDB extensions |
+| PostgreSQL | 5432 | PostgreSQL database server |
 | Temporal Server | 7233 | Temporal gRPC endpoint |
 | Temporal UI | 8090 | Web interface for Temporal workflows |
 | Kafka Broker 0 | 9992 | First Kafka broker |
@@ -59,7 +59,7 @@ MONGO_INITDB_ROOT_PASSWORD=your_mongo_password
 # Redis Configuration
 REDIS_PASSWORD=your_redis_password
 
-# TimescaleDB/PostgreSQL Configuration
+# PostgreSQL Configuration
 POSTGRES_USER=your_postgres_username
 POSTGRES_PASSWORD=your_postgres_password
 TEMPORAL_PASSWORD=your_temporal_password
@@ -75,7 +75,7 @@ make down
 
 # Alternative: Using docker compose directly
 docker compose up -d
-docker compose down
+docker compose down -v
 ```
 
 ## Data Persistence
@@ -84,7 +84,7 @@ All data is persisted in the `./data/` directory:
 - `./data/mongodb_primary/` - MongoDB data
 - `./data/redis/` - Redis data
 - `./data/kafka0/`, `./data/kafka1/`, `./data/kafka2/` - Kafka data
-- `./data/timescaledb/` - TimescaleDB/PostgreSQL data
+- `./data/postgresql/` - PostgreSQL data
 
 ## Service Details
 
@@ -100,14 +100,14 @@ All data is persisted in the `./data/` directory:
 - **Persistence**: RDB snapshots every 20 seconds if at least 1 key changed
 - **Security**: Password protected
 
-### TimescaleDB
-- **Version**: TimescaleDB 2.20.1 with PostgreSQL 17
-- **Features**: Time-series extensions enabled
+### PostgreSQL
+- **Version**: PostgreSQL 17
+- **Features**: Standard PostgreSQL database
 - **Temporal Setup**: Includes Temporal workflow database initialization
 
 ### Temporal Server
 - **Version**: Temporalio Auto-setup 1.27.2
-- **Database**: Uses TimescaleDB/PostgreSQL as persistence layer
+- **Database**: Uses PostgreSQL as persistence layer
 - **Features**: Full workflow orchestration with automatic database setup
 - **Authentication**: Connects to dedicated `temporal` database and `temporal_visibility` database
 - **Security**: No authentication required for client connections
@@ -132,7 +132,6 @@ All data is persisted in the `./data/` directory:
 - **Security**: MongoDB uses keyfile authentication, Redis and PostgreSQL require passwords
 - **Web UI**: Kafka UI and Temporal UI provide easy management interfaces
 - **Easy Management**: Simple make commands for lifecycle management
-- **Time-series Ready**: TimescaleDB for time-series data and Temporal workflows
 - **Workflow Orchestration**: Full Temporal platform for distributed workflow management
 
 ## Use Cases
@@ -163,7 +162,7 @@ mongosh mongodb://username:password@localhost:30001/admin?replicaSet=rs0&readPre
 redis-cli -h localhost -p 6379 -a your_redis_password
 ```
 
-### TimescaleDB
+### PostgreSQL
 ```bash
 # Connect with psql
 psql -h localhost -p 5432 -U your_postgres_username -d postgres

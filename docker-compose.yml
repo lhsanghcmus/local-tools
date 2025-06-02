@@ -160,8 +160,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-temporal.sh:/docker-entrypoint-initdb.d/init-temporal.sh:ro
-      - ./config/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
-    command: postgres -c listen_addresses='*' -c hba_file=/etc/postgresql/pg_hba.conf -c password_encryption=scram-sha-256
+      - ./scripts/init-temporal.sql:/scripts/init-temporal.sql:ro
     networks:
       - postgres
 
