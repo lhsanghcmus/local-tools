@@ -149,8 +149,8 @@ services:
     networks:
       - kafka-cluster
 
-  timescaledb:
-    image: timescale/timescaledb:2.20.1-pg17
+  postgres:
+    image: postgres:17.5
     ports:
       - "5432:5432"
     environment:
@@ -158,10 +158,48 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - TEMPORAL_PASSWORD=${TEMPORAL_PASSWORD}
     volumes:
-      - timescaledb_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-temporal.sh:/docker-entrypoint-initdb.d/init-temporal.sh:ro
+      - ./scripts/init-temporal.sql:/scripts/init-temporal.sql:ro
     networks:
-      - timescaledb
+      - postgres
+
+  temporal:
+    container_name: temporal
+    image: temporalio/auto-setup:1.27.2
+    ports:
+      - "7233:7233" # gRPC port, client backend will connect to this port
+    networks:
+      - postgres
+    depends_on:
+      - postgres
+    environment:
+      - DB=postgres12
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=${TEMPORAL_PASSWORD}
+      - POSTGRES_SEEDS=postgres
+      - DB_PORT=5432
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+      - DYNAMIC_CONFIG_FILE_PATH=/etc/temporal/config/temporal.yaml
+      - SKIP_DB_CREATE=true
+      - VISIBILITY_DBNAME=temporal_visibility
+      - DBNAME=temporal
+    volumes:
+      - ./config/temporal.yaml:/etc/temporal/config/temporal.yaml
+
+  temporal-ui:
+    container_name: temporal-ui
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    image: temporalio/ui:v2.37.3
+    networks:
+      - postgres
+    ports:
+      - 8090:8080
 
 volumes:
   mongodb_master_data:
@@ -194,11 +232,11 @@ volumes:
       type: none
       device: ./data/kafka2
       o: bind
-  timescaledb_data:
+  postgres_data:
     driver: local
     driver_opts:
       type: none
-      device: ./data/timescaledb
+      device: ./data/postgres
       o: bind
 
 networks:
@@ -206,5 +244,5 @@ networks:
     driver: bridge
   kafka-cluster:
     driver: bridge
-  timescaledb:
+  postgres:
     driver: bridge
