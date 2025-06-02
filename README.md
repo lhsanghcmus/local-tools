@@ -57,7 +57,8 @@ After cloning the repository, make sure the script files have execute permission
 chmod +x scripts/up.sh
 chmod +x scripts/down.sh
 chmod +x scripts/init-temporal.sh
-chmod +x scripts/create-kibana.user.sh
+chmod +x scripts/create-kibana-user.sh
+chmod 400 scripts/mongosetup/mongo-keyfile
 ```
 
 ### Setup Environment Variables
