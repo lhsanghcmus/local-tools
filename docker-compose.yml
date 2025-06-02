@@ -149,6 +149,20 @@ services:
     networks:
       - kafka-cluster
 
+  timescaledb:
+    image: timescale/timescaledb:2.20.1-pg17
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - TEMPORAL_PASSWORD=${TEMPORAL_PASSWORD}
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+      - ./scripts/init-temporal.sh:/docker-entrypoint-initdb.d/init-temporal.sh:ro
+    networks:
+      - timescaledb
+
 volumes:
   mongodb_master_data:
     driver: local
@@ -180,9 +194,17 @@ volumes:
       type: none
       device: ./data/kafka2
       o: bind
+  timescaledb_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/timescaledb
+      o: bind
 
 networks:
   mongo-cluster:
     driver: bridge
   kafka-cluster:
+    driver: bridge
+  timescaledb:
     driver: bridge
