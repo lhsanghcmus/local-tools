@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-06-07
+
+### Updated
+- **Container Images**: Updated multiple container images to latest versions for security and stability improvements
+  - MongoDB: `8.0.4-ubuntu2204` → `8.0.9-ubuntu2204` (security patches and bug fixes)
+  - Redis: `8.0.1-alpine3.21` → `8.0.2-alpine3.21` (performance improvements)
+  - Temporal UI: `v2.37.3` → `v2.37.4` (UI enhancements and bug fixes)
+  - Elasticsearch: `9.0.1` → `9.0.2` (security updates and performance improvements)
+  - Kibana: `9.0.1` → `9.0.2` (matching Elasticsearch version for compatibility)
+  - Curl (Kibana user creator): `8.4.0` → `8.13.0` (latest stable version with security patches)
+
+### Benefits
+- Enhanced security posture with latest security patches
+- Improved performance and stability across all services
+- Better compatibility between Elasticsearch and Kibana versions
+- Latest bug fixes and feature improvements
+
 ## [1.0.1] - 2025-06-03
 
 ### Fixed

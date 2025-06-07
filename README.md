@@ -6,6 +6,8 @@ A Docker Compose-based local development environment that provides essential dat
 
 For detailed information about changes, new features, and version history, see [CHANGELOG.md](CHANGELOG.md).
 
+**Latest Version: v1.0.2** - Updated container images for enhanced security and performance
+
 ## Description
 
 This project sets up a comprehensive local development stack with the following services:
@@ -111,10 +113,10 @@ All data is persisted in the `./data/` directory:
 - **Secondary**: Replica instance on port 30001  
 - **Arbiter**: Voting member for elections on port 30002
 - **Authentication**: Uses keyfile-based internal authentication
-- **Version**: MongoDB Community Server 8.0.4
+- **Version**: MongoDB Community Server 8.0.9
 
 ### Redis
-- **Version**: Redis 8.0.1 Alpine
+- **Version**: Redis 8.0.2 Alpine
 - **Persistence**: RDB snapshots every 20 seconds if at least 1 key changed
 - **Security**: Password protected
 
@@ -131,7 +133,7 @@ All data is persisted in the `./data/` directory:
 - **Security**: No authentication required for client connections
 
 ### Temporal UI
-- **Version**: Temporalio UI v2.37.3
+- **Version**: Temporalio UI v2.37.4
 - **Features**: Web-based workflow monitoring, execution history, and task management
 - **CORS**: Configured to allow connections from localhost:3000
 - **Security**: No authentication required for web access
@@ -144,14 +146,14 @@ All data is persisted in the `./data/` directory:
 - **Security**: No authentication required for client connections or web UI access
 
 ### Elasticsearch
-- **Version**: Elasticsearch 9.0.1
+- **Version**: Elasticsearch 9.0.2
 - **Mode**: Single-node cluster for development
 - **Security**: X-Pack security enabled with password authentication
 - **Features**: Full-text search, analytics, and aggregations
 - **Memory**: Configured with 1GB heap size (ES_JAVA_OPTS)
 
 ### Kibana
-- **Version**: Kibana 9.0.1
+- **Version**: Kibana 9.0.2
 - **Authentication**: Uses dedicated `kibana_system` user
 - **Features**: Data visualization, dashboard creation, and Elasticsearch management
 - **Configuration**: Custom configuration via `kibana.yaml`
