@@ -1,6 +1,6 @@
 services:
   mongodb-primary:
-    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    image: mongodb/mongodb-community-server:8.0.9-ubuntu2204
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -15,7 +15,7 @@ services:
     command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile", "--port", "30000"]
 
   mongodb-secondary:
-    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    image: mongodb/mongodb-community-server:8.0.9-ubuntu2204
     depends_on:
       - mongodb-primary
     environment:
@@ -29,7 +29,7 @@ services:
     command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile", "--port", "30001"]
 
   mongodb-arbiter:
-    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    image: mongodb/mongodb-community-server:8.0.9-ubuntu2204
     depends_on:
       - mongodb-primary
       - mongodb-secondary
@@ -42,7 +42,7 @@ services:
     command: [ "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile", "--port", "30002"]
 
   mongodb-setup:
-    image: mongodb/mongodb-community-server:8.0.4-ubuntu2204
+    image: mongodb/mongodb-community-server:8.0.9-ubuntu2204
     depends_on:
       - mongodb-primary
       - mongodb-secondary
@@ -55,7 +55,7 @@ services:
       - mongo-cluster
 
   redis:
-    image: redis:8.0.1-alpine3.21
+    image: redis:8.0.2-alpine3.21
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
@@ -195,14 +195,14 @@ services:
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_CORS_ORIGINS=http://localhost:3000
-    image: temporalio/ui:v2.37.3
+    image: temporalio/ui:v2.37.4
     networks:
       - postgres
     ports:
       - 8090:8080
 
   elasticsearch:
-    image: elasticsearch:9.0.1
+    image: elasticsearch:9.0.2
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -223,7 +223,7 @@ services:
       - elastic
 
   kibana-user-creator:
-    image: curlimages/curl:8.4.0
+    image: curlimages/curl:8.13.0
     entrypoint: ["/scripts/create-kibana-user.sh"]
     networks:
       - elastic
@@ -238,7 +238,7 @@ services:
       - KIBANA_PASSWORD=${KIBANA_PASSWORD}
 
   kibana:
-    image: kibana:9.0.1
+    image: kibana:9.0.2
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
